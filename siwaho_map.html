@@ -9,24 +9,13 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-        .floating-info {
-            position: absolute;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(255, 255, 255, 0.95);
-            padding: 15px 30px;
-            border-radius: 25px;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            font-weight: 600;
-            color: #2c3e50;
         }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             overflow: hidden;
+            height: 100vh;
         }
 
         .container {
@@ -44,7 +33,8 @@
             padding: 20px;
             overflow-y: auto;
             box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-            max-height: 100vh;
+            height: 100vh;
+            flex-shrink: 0;
         }
 
         .map-container {
@@ -432,6 +422,29 @@
         .tab-content.active {
             display: block;
         }
+
+        .floating-info {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px 30px;
+            border-radius: 25px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .year-highlight {
+            background: rgba(241, 196, 15, 0.2);
+            border: 2px solid #f1c40f;
+            border-radius: 5px;
+            padding: 2px 5px;
+            margin-top: 5px;
+            font-size: 0.8em;
+        }
     </style>
 </head>
 <body>
@@ -483,12 +496,13 @@
 
             <div class="time-slider">
                 <h4>⏱️ 시간축 조절</h4>
-                <input type="range" class="slider" min="2020" max="2030" value="2024" id="timeSlider">
+                <input type="range" class="slider" min="2004" max="2022" value="2015" id="timeSlider">
                 <div style="display: flex; justify-content: space-between; font-size: 0.8em; margin-top: 5px;">
-                    <span>2020</span>
-                    <span id="currentYear">2024</span>
-                    <span>2030</span>
+                    <span>2004</span>
+                    <span id="currentYear">2015</span>
+                    <span>2022</span>
                 </div>
+                <div class="year-highlight" id="yearDescription">해수 유통으로 점진적 수질 개선 중</div>
             </div>
 
             <div class="briefing-panel">
@@ -496,105 +510,115 @@
                 
                 <div class="tab-buttons">
                     <button class="tab-button active" data-tab="issues">주요 이슈</button>
-                    <button class="tab-button" data-tab="history">역사</button>
+                    <button class="tab-button" data-tab="history">변천사</button>
                     <button class="tab-button" data-tab="solutions">해결방안</button>
                 </div>
 
                 <div class="tab-content active" id="issues">
                     <div class="issue-item">
-                        <div class="issue-title">🚨 수질 오염 심각</div>
-                        <div class="issue-desc">산업폐수와 생활하수 유입으로 인한 부영양화 진행. 조류 대발생으로 생태계 교란 지속.</div>
-                        <div class="issue-status">진행중 - 개선 필요</div>
+                        <div class="issue-title">🚨 초기 수질 오염 심각</div>
+                        <div class="issue-desc">1990년대 '죽음의 호수' 상태에서 2000년 해수 유통 개시 후 점진적 개선 진행 중.</div>
+                        <div class="issue-status">개선 진행중</div>
                     </div>
 
                     <div class="issue-item warning">
-                        <div class="issue-title">⚠️ 플라스틱 쓰레기 증가</div>
-                        <div class="issue-desc">연안 지역 플라스틱 폐기물 누적. 해양 생물 서식지 파괴 및 미세플라스틱 검출.</div>
-                        <div class="issue-status">모니터링 중</div>
+                        <div class="issue-title">⚠️ 산업폐수 관리</div>
+                        <div class="issue-desc">반월·시화 공단 폐수처리시설 고도화 작업. 유입 차단과 처리 효율 향상 추진.</div>
+                        <div class="issue-status">관리 강화중</div>
                     </div>
 
                     <div class="issue-item success">
-                        <div class="issue-title">✅ 시민 참여 활발</div>
-                        <div class="issue-desc">플로깅, 정화활동 등 시민 참여 프로그램 운영. 월평균 1,200명 이상 참여.</div>
-                        <div class="issue-status">성과 우수</div>
+                        <div class="issue-title">✅ 조력발전소 건설</div>
+                        <div class="issue-desc">2011년 시화호 조력발전소 가동 시작. 청정에너지 생산과 수질 개선 동시 효과.</div>
+                        <div class="issue-status">성공적 운영</div>
                     </div>
 
                     <div class="issue-item info">
-                        <div class="issue-title">💡 스마트 모니터링 도입</div>
-                        <div class="issue-desc">IoT 센서 기반 실시간 수질 측정. AI 분석을 통한 예측 시스템 구축 중.</div>
-                        <div class="issue-status">구축 진행중</div>
+                        <div class="issue-title">💡 생태복원 사업</div>
+                        <div class="issue-desc">갈대습지 조성, 철새 도래지 복원. 생물서식지 확대와 자연정화 능력 증진.</div>
+                        <div class="issue-status">지속 추진중</div>
                     </div>
                 </div>
 
                 <div class="tab-content" id="history">
                     <div class="issue-item info">
-                        <div class="issue-title">🏗️ 1987-1994년 시화호 건설</div>
-                        <div class="issue-desc">간척사업으로 시화호 조성. 농업용수와 공업용수 공급 목적으로 시작.</div>
+                        <div class="issue-title">🏗️ 1994년 시화호 완공</div>
+                        <div class="issue-desc">간척사업 완료. 담수호로 설계되어 농업·공업용수 공급 목적으로 시작.</div>
+                        <div class="year-highlight">1987-1994년</div>
                     </div>
 
                     <div class="issue-item">
-                        <div class="issue-title">💀 1990년대 수질 악화</div>
-                        <div class="issue-desc">산업폐수 유입으로 극심한 수질 오염. '죽음의 호수'로 불리며 사회 문제화.</div>
+                        <div class="issue-title">💀 1990년대 극심한 오염</div>
+                        <div class="issue-desc">산업폐수와 생활하수 유입으로 '죽음의 호수' 상태. 심각한 수질 악화와 악취 발생.</div>
+                        <div class="year-highlight">1994-2000년</div>
                     </div>
 
                     <div class="issue-item warning">
-                        <div class="issue-title">🔄 2000년대 해수 유통</div>
-                        <div class="issue-desc">담수호에서 해수호로 전환. 갯벌 복원과 수질 개선 사업 시작.</div>
+                        <div class="issue-title">🔄 2000년 해수 유통 시작</div>
+                        <div class="issue-desc">담수호 포기, 해수 유통으로 전환. 수질 개선을 위한 근본적 정책 변화.</div>
+                        <div class="year-highlight">2000년</div>
                     </div>
 
                     <div class="issue-item success">
-                        <div class="issue-title">🌱 2010년대 생태 복원</div>
-                        <div class="issue-desc">습지 조성, 갈대밭 복원 등 생태계 회복 노력. 점진적 수질 개선 성과.</div>
+                        <div class="issue-title">🌊 2011년 조력발전소</div>
+                        <div class="issue-desc">세계 최대 규모 조력발전소 완공 및 가동. 재생에너지 생산기지로 전환.</div>
+                        <div class="year-highlight">2011년</div>
+                    </div>
+
+                    <div class="issue-item success">
+                        <div class="issue-title">🌱 2010년대 생태복원</div>
+                        <div class="issue-desc">습지공원 조성, 갈대밭 복원, 철새 서식지 조성. 점진적 생태계 회복 성과.</div>
+                        <div class="year-highlight">2010-2022년</div>
                     </div>
                 </div>
 
                 <div class="tab-content" id="solutions">
                     <div class="issue-item success">
                         <div class="issue-title">🏭 오염원 차단</div>
-                        <div class="issue-desc">산업단지 폐수처리시설 고도화, 생활하수 처리율 99% 달성 목표.</div>
+                        <div class="issue-desc">반월·시화공단 폐수처리시설 3단계 고도처리. 방류수 수질기준 강화.</div>
                     </div>
 
                     <div class="issue-item info">
-                        <div class="issue-title">🌿 자연 정화 시설</div>
-                        <div class="issue-desc">인공습지 확대, 갈대밭 조성으로 자연 정화 능력 향상. 생물서식지 복원.</div>
+                        <div class="issue-title">🌿 자연정화 시설</div>
+                        <div class="issue-desc">인공습지 확대, 갈대밭 조성으로 자연 정화능력 향상. 연간 정화량 지속 증가.</div>
                     </div>
 
                     <div class="issue-item warning">
-                        <div class="issue-title">👥 시민 참여 확대</div>
-                        <div class="issue-desc">환경교육, 정화활동, 모니터링 참여 프로그램. 리워드 시스템 도입 검토.</div>
+                        <div class="issue-title">🔋 조력발전 활용</div>
+                        <div class="issue-desc">조력발전소 운영을 통한 해수 순환 촉진. 정체수역 해소와 수질 개선 효과.</div>
                     </div>
 
                     <div class="issue-item">
-                        <div class="issue-title">🔬 기술적 해결책</div>
-                        <div class="issue-desc">AI 기반 수질 예측, 드론 모니터링, 스마트 쓰레기 수거 시스템 도입 계획.</div>
+                        <div class="issue-title">📊 지속적 모니터링</div>
+                        <div class="issue-desc">수질 자동측정망 구축, 정기적 생태조사 실시. 과학적 데이터 기반 관리 체계.</div>
                     </div>
                 </div>
             </div>
 
             <div class="stats-panel">
-                <h3>📊 실시간 통계</h3>
+                <h3>📊 시기별 현황</h3>
                 <div class="stat-item">
                     <span>수질 등급</span>
-                    <span id="waterGrade">보통</span>
+                    <span id="waterGrade">4등급(나쁨)</span>
                 </div>
                 <div class="stat-item">
-                    <span>폐기물 신고</span>
-                    <span id="wasteReports">23건</span>
+                    <span>COD 농도</span>
+                    <span id="codLevel">15.2 mg/L</span>
                 </div>
                 <div class="stat-item">
-                    <span>참여자 수</span>
-                    <span id="participants">1,247명</span>
+                    <span>조력발전량</span>
+                    <span id="tidalPower">미가동</span>
                 </div>
                 <div class="stat-item">
-                    <span>청소 완료</span>
-                    <span id="cleanedAreas">89%</span>
+                    <span>생태복원율</span>
+                    <span id="restoration">15%</span>
                 </div>
             </div>
         </div>
 
         <div class="map-container">
             <div class="floating-info">
-                🌊 시화호 통합 환경 모니터링 시스템
+                🌊 시화호 환경변화 모니터링 시스템 (2004-2022)
             </div>
 
             <div class="map">
@@ -617,40 +641,40 @@
                 <div class="city-label" style="top: 8%; left: 62%;">경기만</div>
                 
                 <!-- 수질 데이터 포인트 -->
-                <div class="data-point water-quality good" style="top: 38%; left: 42%;" data-info="지점 A|pH: 7.2|탁도: 2.1 NTU|조류: 낮음"></div>
-                <div class="data-point water-quality warning" style="top: 42%; left: 48%;" data-info="지점 B|pH: 8.1|탁도: 4.5 NTU|조류: 보통"></div>
-                <div class="data-point water-quality danger" style="top: 40%; left: 52%;" data-info="지점 C|pH: 9.2|탁도: 8.3 NTU|조류: 높음"></div>
-                <div class="data-point water-quality good" style="top: 45%; left: 45%;" data-info="지점 D|pH: 7.8|탁도: 1.9 NTU|조류: 낮음"></div>
+                <div class="data-point water-quality danger" style="top: 38%; left: 42%;" data-info="지점 A|COD: 18.5 mg/L|총질소: 2.8 mg/L|수질등급: 4등급"></div>
+                <div class="data-point water-quality danger" style="top: 42%; left: 48%;" data-info="지점 B|COD: 22.1 mg/L|총인: 0.15 mg/L|수질등급: 4등급"></div>
+                <div class="data-point water-quality warning" style="top: 40%; left: 52%;" data-info="지점 C|COD: 12.8 mg/L|총질소: 2.1 mg/L|수질등급: 3등급"></div>
+                <div class="data-point water-quality danger" style="top: 45%; left: 45%;" data-info="지점 D|COD: 19.7 mg/L|총인: 0.18 mg/L|수질등급: 4등급"></div>
 
                 <!-- 쓰레기 핫스팟 -->
-                <div class="data-point waste-point" style="top: 35%; left: 40%; display: none;" data-info="폐기물 신고|플라스틱 쓰레기 집중|신고자: 김환경|날짜: 2024.09.15"></div>
-                <div class="data-point waste-point" style="top: 50%; left: 50%; display: none;" data-info="산업폐기물|화학물질 의심|긴급 조치 필요|신고자: 박시민"></div>
-                <div class="data-point waste-point" style="top: 48%; left: 25%; display: none;" data-info="생활쓰레기|음식물 쓰레기 다량|악취 발생|처리 완료: 80%"></div>
+                <div class="data-point waste-point" style="top: 35%; left: 40%; display: none;" data-info="산업폐기물|반월공단 유입|처리시설 고도화 필요|2008년 개선"></div>
+                <div class="data-point waste-point" style="top: 50%; left: 50%; display: none;" data-info="생활하수|시화공단 주변|하수처리장 증설|진행중"></div>
+                <div class="data-point waste-point" style="top: 48%; left: 25%; display: none;" data-info="농업오염|축산 폐수|관리구역 지정|2010년 개선"></div>
 
                 <!-- 녹지/습지 포인트 -->
-                <div class="data-point green-point" style="top: 60%; left: 48%; display: none;" data-info="갈대습지|면적: 2.3ha|생물다양성: 높음|보존상태: 양호"></div>
-                <div class="data-point green-point" style="top: 25%; left: 30%; display: none;" data-info="조성된 공원|면적: 1.8ha|시민 접근성: 우수|관리상태: 좋음"></div>
-                <div class="data-point green-point" style="top: 65%; left: 55%; display: none;" data-info="자연 서식지|희귀 조류 서식|보호구역 지정|모니터링 중"></div>
+                <div class="data-point green-point" style="top: 60%; left: 48%; display: none;" data-info="갈대습지|조성 면적: 1.2ha|2009년 시작|생태복원 중"></div>
+                <div class="data-point green-point" style="top: 25%; left: 30%; display: none;" data-info="시화호 습지공원|2009년 개장|탐방객 연 50만명|교육장 운영"></div>
+                <div class="data-point green-point" style="top: 65%; left: 55%; display: none;" data-info="철새도래지|가창오리 서식|겨울철 5만마리|보호구역 지정"></div>
 
                 <!-- 참여/캠페인 포인트 -->
-                <div class="data-point activity-point" style="top: 55%; left: 42%; display: none;" data-info="플로깅 완료|참여자: 25명|수거량: 45kg|포인트: 250P"></div>
-                <div class="data-point activity-point" style="top: 32%; left: 45%; display: none;" data-info="정화 캠페인|예정일: 09.25|목표 인원: 50명|현재 신청: 32명"></div>
-                <div class="data-point activity-point" style="top: 22%; left: 28%; display: none;" data-info="환경 교육|학생 체험학습|참여 학교: 3곳|만족도: 9.2/10"></div>
+                <div class="data-point activity-point" style="top: 55%; left: 42%; display: none;" data-info="정화활동|시민단체 주관|월 2회 실시|참여자 평균 30명"></div>
+                <div class="data-point activity-point" style="top: 32%; left: 45%; display: none;" data-info="환경감시|수질 모니터링|자원봉사 운영|데이터 수집"></div>
+                <div class="data-point activity-point" style="top: 22%; left: 28%; display: none;" data-info="생태교육|학교 연계|연 200회 진행|학생 체험학습"></div>
             </div>
 
             <div class="legend">
                 <h4>범례</h4>
                 <div class="legend-item">
                     <div class="legend-color good"></div>
-                    <span>수질 양호</span>
+                    <span>수질 양호 (1-2등급)</span>
                 </div>
                 <div class="legend-item">
                     <div class="legend-color warning"></div>
-                    <span>주의 필요</span>
+                    <span>보통 (3등급)</span>
                 </div>
                 <div class="legend-item">
                     <div class="legend-color danger"></div>
-                    <span>위험 상태</span>
+                    <span>나쁨 (4-5등급)</span>
                 </div>
             </div>
 
@@ -662,118 +686,9 @@
     </div>
 
     <script>
-        // 브리핑 탭 기능
-        document.querySelectorAll('.tab-button').forEach(button => {
-            button.addEventListener('click', () => {
-                const tabId = button.dataset.tab;
-                
-                // 모든 탭 버튼과 콘텐츠 비활성화
-                document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
-                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                
-                // 클릭된 탭 활성화
-                button.classList.add('active');
-                document.getElementById(tabId).classList.add('active');
-            });
-        });
-
-        // 레이어 토글 기능
-        document.querySelectorAll('.layer-item').forEach(item => {
-            item.addEventListener('click', () => {
-                const layer = item.dataset.layer;
-                const toggle = item.querySelector('.toggle-switch');
-                const isActive = toggle.classList.contains('active');
-                
-                // 토글 상태 변경
-                if (isActive) {
-                    toggle.classList.remove('active');
-                    item.classList.remove('active');
-                } else {
-                    toggle.classList.add('active');
-                    item.classList.add('active');
-                }
-                
-                // 해당 레이어의 데이터 포인트 표시/숨김
-                const points = getPointsByLayer(layer);
-                points.forEach(point => {
-                    point.style.display = isActive ? 'none' : 'block';
-                });
-            });
-        });
-
-        function getPointsByLayer(layer) {
-            switch(layer) {
-                case 'water': return document.querySelectorAll('.water-quality');
-                case 'waste': return document.querySelectorAll('.waste-point');
-                case 'green': return document.querySelectorAll('.green-point');
-                case 'activity': return document.querySelectorAll('.activity-point');
-                default: return [];
-            }
-        }
-
-        // 팝업 기능
-        document.querySelectorAll('.data-point').forEach(point => {
-            point.addEventListener('click', (e) => {
-                const popup = document.getElementById('popup');
-                const info = point.dataset.info.split('|');
-                
-                document.getElementById('popupTitle').textContent = info[0];
-                document.getElementById('popupContent').innerHTML = 
-                    info.slice(1).map(item => `<p>${item}</p>`).join('');
-                
-                popup.style.display = 'block';
-                popup.style.left = e.clientX + 10 + 'px';
-                popup.style.top = e.clientY + 10 + 'px';
-            });
-        });
-
-        // 팝업 닫기
-        document.addEventListener('click', (e) => {
-            if (!e.target.classList.contains('data-point')) {
-                document.getElementById('popup').style.display = 'none';
-            }
-        });
-
-        // 시간 슬라이더
-        const timeSlider = document.getElementById('timeSlider');
-        const currentYear = document.getElementById('currentYear');
-        
-        timeSlider.addEventListener('input', (e) => {
-            currentYear.textContent = e.target.value;
-            // 시간에 따른 데이터 변화 시뮬레이션
-            updateStatsForYear(e.target.value);
-        });
-
-        function updateStatsForYear(year) {
-            const waterGrades = ['매우좋음', '좋음', '보통', '나쁨'];
-            const grade = waterGrades[Math.floor(Math.random() * waterGrades.length)];
-            document.getElementById('waterGrade').textContent = grade;
-            
-            const wasteCount = Math.floor(Math.random() * 50) + 10;
-            document.getElementById('wasteReports').textContent = wasteCount + '건';
-            
-            const participants = Math.floor(Math.random() * 2000) + 800;
-            document.getElementById('participants').textContent = participants.toLocaleString() + '명';
-            
-            const cleaned = Math.floor(Math.random() * 30) + 70;
-            document.getElementById('cleanedAreas').textContent = cleaned + '%';
-        }
-
-        // 초기 통계 업데이트
-        updateStatsForYear(2024);
-        
-        // 데이터 포인트 애니메이션
-        setInterval(() => {
-            document.querySelectorAll('.water-quality').forEach(point => {
-                const colors = ['#27ae60', '#f39c12', '#e74c3c'];
-                const currentColor = point.style.backgroundColor;
-                const randomColor = colors[Math.floor(Math.random() * colors.length)];
-                // 가끔씩 색상 변경으로 실시간 데이터 변화 표현
-                if (Math.random() < 0.1) {
-                    point.style.backgroundColor = randomColor;
-                }
-            });
-        }, 3000);
-    </script>
-</body>
-</html>
+        // 연도별 데이터 정의
+        const yearData = {
+            2004: { grade: "4등급(나쁨)", cod: "20.5 mg/L", tidal: "미가동", restore: "5%", desc: "해수유통 시작 4년차, 여전히 심각한 오염 상태" },
+            2005: { grade: "4등급(나쁨)", cod: "19.8 mg/L", tidal: "미가동", restore: "8%", desc: "점진적 개선 시작, 하수처리장 증설" },
+            2006: { grade: "4등급(나쁨)", cod: "18.9 mg/L", tidal: "미가동", restore: "12%", desc: "폐수처리시설 고도화 착수" },
+            2007: { grade: "3등급(보통)", cod: "16.
