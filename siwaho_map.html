@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>시화호 환경 모니터링 지도</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        .floating-info {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px 30px;
+            border-radius: 25px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            overflow: hidden;
+        }
+
+        .container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            display: flex;
+        }
+
+        .sidebar {
+            width: 380px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 20px;
+            overflow-y: auto;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            max-height: 100vh;
+        }
+
+        .map-container {
+            flex: 1;
+            position: relative;
+            background: #e8f4fd;
+            overflow: hidden;
+        }
+
+        .map {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            background: linear-gradient(45deg, #89CFF0 0%, #B8E6B8 50%, #87CEEB 100%);
+        }
+
+        .lake {
+            position: absolute;
+            top: 35%;
+            left: 40%;
+            width: 200px;
+            height: 120px;
+            background: radial-gradient(ellipse at center, #4A90E2 0%, #2E5BBA 100%);
+            border-radius: 60% 40% 50% 70%;
+            box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.2);
+            transform: rotate(-15deg);
+        }
+
+        .city-area {
+            position: absolute;
+            background: rgba(100, 100, 100, 0.3);
+            border: 2px solid rgba(80, 80, 80, 0.5);
+            border-radius: 10px;
+        }
+
+        .ansan {
+            top: 20%;
+            left: 25%;
+            width: 120px;
+            height: 100px;
+            background: rgba(255, 140, 0, 0.2);
+            border-color: rgba(255, 140, 0, 0.6);
+        }
+
+        .siheung {
+            top: 45%;
+            left: 20%;
+            width: 140px;
+            height: 90px;
+            background: rgba(0, 150, 255, 0.2);
+            border-color: rgba(0, 150, 255, 0.6);
+        }
+
+        .hwaseong {
+            top: 55%;
+            left: 45%;
+            width: 180px;
+            height: 120px;
+            background: rgba(50, 200, 100, 0.2);
+            border-color: rgba(50, 200, 100, 0.6);
+        }
+
+        .city-label {
+            position: absolute;
+            font-weight: bold;
+            color: #2c3e50;
+            font-size: 0.9em;
+            text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.8);
+            z-index: 5;
+        }
+
+        .seoul-bay {
+            position: absolute;
+            top: 10%;
+            left: 60%;
+            width: 200px;
+            height: 150px;
+            background: linear-gradient(135deg, #4A90E2 0%, #87CEEB 100%);
+            border-radius: 40% 60% 50% 80%;
+            opacity: 0.7;
+            transform: rotate(20deg);
+        }
+
+        .layer-controls {
+            margin-bottom: 25px;
+        }
+
+        .layer-controls h2 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.4em;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 5px;
+        }
+
+        .layer-item {
+            margin-bottom: 15px;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+            transition: all 0.3s ease;
+        }
+
+        .layer-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .layer-item.active {
+            border-left-color: #e74c3c;
+            background: rgba(231, 76, 60, 0.1);
+        }
+
+        .layer-toggle {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .toggle-switch {
+            width: 40px;
+            height: 20px;
+            background: #ddd;
+            border-radius: 20px;
+            position: relative;
+            margin-right: 10px;
+            transition: background 0.3s ease;
+        }
+
+        .toggle-switch.active {
+            background: #4CAF50;
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: white;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.3s ease;
+        }
+
+        .toggle-switch.active::after {
+            transform: translateX(20px);
+        }
+
+        .layer-title {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .layer-desc {
+            font-size: 0.85em;
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+
+        .data-point {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            z-index: 10;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            border: 3px solid white;
+        }
+
+        .data-point:hover {
+            transform: scale(1.3);
+            z-index: 20;
+        }
+
+        .water-quality {
+            animation: pulse 2s infinite;
+        }
+
+        .good { background: #27ae60; }
+        .warning { background: #f39c12; }
+        .danger { background: #e74c3c; }
+
+        .waste-point {
+            background: #8e44ad;
+            border-radius: 30% 70% 70% 30%;
+        }
+
+        .green-point {
+            background: #2ecc71;
+            border-radius: 20% 80% 60% 40%;
+        }
+
+        .activity-point {
+            background: #3498db;
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+            border-radius: 0;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; }
+        }
+
+        .popup {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            min-width: 200px;
+            z-index: 100;
+            display: none;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .popup h3 {
+            color: #2c3e50;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+
+        .popup p {
+            color: #7f8c8d;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+
+        .time-slider {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+        }
+
+        .slider {
+            width: 100%;
+            height: 5px;
+            background: #ddd;
+            border-radius: 5px;
+            outline: none;
+        }
+
+        .legend {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .legend h4 {
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+            font-size: 0.85em;
+        }
+
+        .legend-color {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .stats-panel {
+            margin-top: 25px;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            color: white;
+        }
+
+        .stats-panel h3 {
+            margin-bottom: 10px;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 0.9em;
+        }
+
+        .briefing-panel {
+            margin-top: 25px;
+            padding: 15px;
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            border-radius: 10px;
+            color: white;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .briefing-panel h3 {
+            margin-bottom: 15px;
+            color: #ecf0f1;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 8px;
+        }
+
+        .issue-item {
+            margin-bottom: 15px;
+            padding: 12px;
+            background: rgba(52, 73, 93, 0.3);
+            border-radius: 8px;
+            border-left: 4px solid #e74c3c;
+        }
+
+        .issue-item.warning {
+            border-left-color: #f39c12;
+        }
+
+        .issue-item.info {
+            border-left-color: #3498db;
+        }
+
+        .issue-item.success {
+            border-left-color: #27ae60;
+        }
+
+        .issue-title {
+            font-weight: 600;
+            font-size: 0.95em;
+            margin-bottom: 5px;
+            color: #ecf0f1;
+        }
+
+        .issue-desc {
+            font-size: 0.85em;
+            color: #bdc3c7;
+            line-height: 1.4;
+        }
+
+        .issue-status {
+            font-size: 0.8em;
+            margin-top: 5px;
+            padding: 3px 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            display: inline-block;
+        }
+
+        .tab-buttons {
+            display: flex;
+            margin-bottom: 15px;
+            background: rgba(52, 73, 93, 0.2);
+            border-radius: 8px;
+            padding: 3px;
+        }
+
+        .tab-button {
+            flex: 1;
+            padding: 8px 12px;
+            background: transparent;
+            border: none;
+            color: #bdc3c7;
+            cursor: pointer;
+            border-radius: 6px;
+            font-size: 0.85em;
+            transition: all 0.3s ease;
+        }
+
+        .tab-button.active {
+            background: #3498db;
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="layer-controls">
+                <h2>🗺️ 시화호 환경 지도</h2>
+                
+                <div class="layer-item active" data-layer="water">
+                    <div class="layer-toggle">
+                        <div class="toggle-switch active"></div>
+                        <div>
+                            <div class="layer-title">💧 수질/조류 모니터링</div>
+                            <div class="layer-desc">pH, 탁도, 조류 발생량 실시간 데이터</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="layer-item" data-layer="waste">
+                    <div class="layer-toggle">
+                        <div class="toggle-switch"></div>
+                        <div>
+                            <div class="layer-title">🗑️ 쓰레기/폐기물 핫스팟</div>
+                            <div class="layer-desc">플라스틱, 생활쓰레기, 산업폐기물</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="layer-item" data-layer="green">
+                    <div class="layer-toggle">
+                        <div class="toggle-switch"></div>
+                        <div>
+                            <div class="layer-title">🌱 녹지/습지 현황</div>
+                            <div class="layer-desc">위성사진 기반 생태 데이터</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="layer-item" data-layer="activity">
+                    <div class="layer-toggle">
+                        <div class="toggle-switch"></div>
+                        <div>
+                            <div class="layer-title">🏃‍♀️ 참여/캠페인</div>
+                            <div class="layer-desc">청소활동, 플로깅, 참여기록</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="time-slider">
+                <h4>⏱️ 시간축 조절</h4>
+                <input type="range" class="slider" min="2020" max="2030" value="2024" id="timeSlider">
+                <div style="display: flex; justify-content: space-between; font-size: 0.8em; margin-top: 5px;">
+                    <span>2020</span>
+                    <span id="currentYear">2024</span>
+                    <span>2030</span>
+                </div>
+            </div>
+
+            <div class="briefing-panel">
+                <h3>📋 시화호 환경 브리핑</h3>
+                
+                <div class="tab-buttons">
+                    <button class="tab-button active" data-tab="issues">주요 이슈</button>
+                    <button class="tab-button" data-tab="history">역사</button>
+                    <button class="tab-button" data-tab="solutions">해결방안</button>
+                </div>
+
+                <div class="tab-content active" id="issues">
+                    <div class="issue-item">
+                        <div class="issue-title">🚨 수질 오염 심각</div>
+                        <div class="issue-desc">산업폐수와 생활하수 유입으로 인한 부영양화 진행. 조류 대발생으로 생태계 교란 지속.</div>
+                        <div class="issue-status">진행중 - 개선 필요</div>
+                    </div>
+
+                    <div class="issue-item warning">
+                        <div class="issue-title">⚠️ 플라스틱 쓰레기 증가</div>
+                        <div class="issue-desc">연안 지역 플라스틱 폐기물 누적. 해양 생물 서식지 파괴 및 미세플라스틱 검출.</div>
+                        <div class="issue-status">모니터링 중</div>
+                    </div>
+
+                    <div class="issue-item success">
+                        <div class="issue-title">✅ 시민 참여 활발</div>
+                        <div class="issue-desc">플로깅, 정화활동 등 시민 참여 프로그램 운영. 월평균 1,200명 이상 참여.</div>
+                        <div class="issue-status">성과 우수</div>
+                    </div>
+
+                    <div class="issue-item info">
+                        <div class="issue-title">💡 스마트 모니터링 도입</div>
+                        <div class="issue-desc">IoT 센서 기반 실시간 수질 측정. AI 분석을 통한 예측 시스템 구축 중.</div>
+                        <div class="issue-status">구축 진행중</div>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="history">
+                    <div class="issue-item info">
+                        <div class="issue-title">🏗️ 1987-1994년 시화호 건설</div>
+                        <div class="issue-desc">간척사업으로 시화호 조성. 농업용수와 공업용수 공급 목적으로 시작.</div>
+                    </div>
+
+                    <div class="issue-item">
+                        <div class="issue-title">💀 1990년대 수질 악화</div>
+                        <div class="issue-desc">산업폐수 유입으로 극심한 수질 오염. '죽음의 호수'로 불리며 사회 문제화.</div>
+                    </div>
+
+                    <div class="issue-item warning">
+                        <div class="issue-title">🔄 2000년대 해수 유통</div>
+                        <div class="issue-desc">담수호에서 해수호로 전환. 갯벌 복원과 수질 개선 사업 시작.</div>
+                    </div>
+
+                    <div class="issue-item success">
+                        <div class="issue-title">🌱 2010년대 생태 복원</div>
+                        <div class="issue-desc">습지 조성, 갈대밭 복원 등 생태계 회복 노력. 점진적 수질 개선 성과.</div>
+                    </div>
+                </div>
+
+                <div class="tab-content" id="solutions">
+                    <div class="issue-item success">
+                        <div class="issue-title">🏭 오염원 차단</div>
+                        <div class="issue-desc">산업단지 폐수처리시설 고도화, 생활하수 처리율 99% 달성 목표.</div>
+                    </div>
+
+                    <div class="issue-item info">
+                        <div class="issue-title">🌿 자연 정화 시설</div>
+                        <div class="issue-desc">인공습지 확대, 갈대밭 조성으로 자연 정화 능력 향상. 생물서식지 복원.</div>
+                    </div>
+
+                    <div class="issue-item warning">
+                        <div class="issue-title">👥 시민 참여 확대</div>
+                        <div class="issue-desc">환경교육, 정화활동, 모니터링 참여 프로그램. 리워드 시스템 도입 검토.</div>
+                    </div>
+
+                    <div class="issue-item">
+                        <div class="issue-title">🔬 기술적 해결책</div>
+                        <div class="issue-desc">AI 기반 수질 예측, 드론 모니터링, 스마트 쓰레기 수거 시스템 도입 계획.</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stats-panel">
+                <h3>📊 실시간 통계</h3>
+                <div class="stat-item">
+                    <span>수질 등급</span>
+                    <span id="waterGrade">보통</span>
+                </div>
+                <div class="stat-item">
+                    <span>폐기물 신고</span>
+                    <span id="wasteReports">23건</span>
+                </div>
+                <div class="stat-item">
+                    <span>참여자 수</span>
+                    <span id="participants">1,247명</span>
+                </div>
+                <div class="stat-item">
+                    <span>청소 완료</span>
+                    <span id="cleanedAreas">89%</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="map-container">
+            <div class="floating-info">
+                🌊 시화호 통합 환경 모니터링 시스템
+            </div>
+
+            <div class="map">
+                <!-- 경기만/서해 표현 -->
+                <div class="seoul-bay"></div>
+                
+                <!-- 도시 구역들 -->
+                <div class="city-area ansan"></div>
+                <div class="city-area siheung"></div>
+                <div class="city-area hwaseong"></div>
+                
+                <!-- 시화호 -->
+                <div class="lake"></div>
+                
+                <!-- 도시 라벨들 -->
+                <div class="city-label" style="top: 15%; left: 27%;">안산시</div>
+                <div class="city-label" style="top: 42%; left: 22%;">시흥시</div>
+                <div class="city-label" style="top: 52%; left: 47%;">화성시</div>
+                <div class="city-label" style="top: 38%; left: 44%;">시화호</div>
+                <div class="city-label" style="top: 8%; left: 62%;">경기만</div>
+                
+                <!-- 수질 데이터 포인트 -->
+                <div class="data-point water-quality good" style="top: 38%; left: 42%;" data-info="지점 A|pH: 7.2|탁도: 2.1 NTU|조류: 낮음"></div>
+                <div class="data-point water-quality warning" style="top: 42%; left: 48%;" data-info="지점 B|pH: 8.1|탁도: 4.5 NTU|조류: 보통"></div>
+                <div class="data-point water-quality danger" style="top: 40%; left: 52%;" data-info="지점 C|pH: 9.2|탁도: 8.3 NTU|조류: 높음"></div>
+                <div class="data-point water-quality good" style="top: 45%; left: 45%;" data-info="지점 D|pH: 7.8|탁도: 1.9 NTU|조류: 낮음"></div>
+
+                <!-- 쓰레기 핫스팟 -->
+                <div class="data-point waste-point" style="top: 35%; left: 40%; display: none;" data-info="폐기물 신고|플라스틱 쓰레기 집중|신고자: 김환경|날짜: 2024.09.15"></div>
+                <div class="data-point waste-point" style="top: 50%; left: 50%; display: none;" data-info="산업폐기물|화학물질 의심|긴급 조치 필요|신고자: 박시민"></div>
+                <div class="data-point waste-point" style="top: 48%; left: 25%; display: none;" data-info="생활쓰레기|음식물 쓰레기 다량|악취 발생|처리 완료: 80%"></div>
+
+                <!-- 녹지/습지 포인트 -->
+                <div class="data-point green-point" style="top: 60%; left: 48%; display: none;" data-info="갈대습지|면적: 2.3ha|생물다양성: 높음|보존상태: 양호"></div>
+                <div class="data-point green-point" style="top: 25%; left: 30%; display: none;" data-info="조성된 공원|면적: 1.8ha|시민 접근성: 우수|관리상태: 좋음"></div>
+                <div class="data-point green-point" style="top: 65%; left: 55%; display: none;" data-info="자연 서식지|희귀 조류 서식|보호구역 지정|모니터링 중"></div>
+
+                <!-- 참여/캠페인 포인트 -->
+                <div class="data-point activity-point" style="top: 55%; left: 42%; display: none;" data-info="플로깅 완료|참여자: 25명|수거량: 45kg|포인트: 250P"></div>
+                <div class="data-point activity-point" style="top: 32%; left: 45%; display: none;" data-info="정화 캠페인|예정일: 09.25|목표 인원: 50명|현재 신청: 32명"></div>
+                <div class="data-point activity-point" style="top: 22%; left: 28%; display: none;" data-info="환경 교육|학생 체험학습|참여 학교: 3곳|만족도: 9.2/10"></div>
+            </div>
+
+            <div class="legend">
+                <h4>범례</h4>
+                <div class="legend-item">
+                    <div class="legend-color good"></div>
+                    <span>수질 양호</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color warning"></div>
+                    <span>주의 필요</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color danger"></div>
+                    <span>위험 상태</span>
+                </div>
+            </div>
+
+            <div class="popup" id="popup">
+                <h3 id="popupTitle"></h3>
+                <div id="popupContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 브리핑 탭 기능
+        document.querySelectorAll('.tab-button').forEach(button => {
+            button.addEventListener('click', () => {
+                const tabId = button.dataset.tab;
+                
+                // 모든 탭 버튼과 콘텐츠 비활성화
+                document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                // 클릭된 탭 활성화
+                button.classList.add('active');
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
+
+        // 레이어 토글 기능
+        document.querySelectorAll('.layer-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const layer = item.dataset.layer;
+                const toggle = item.querySelector('.toggle-switch');
+                const isActive = toggle.classList.contains('active');
+                
+                // 토글 상태 변경
+                if (isActive) {
+                    toggle.classList.remove('active');
+                    item.classList.remove('active');
+                } else {
+                    toggle.classList.add('active');
+                    item.classList.add('active');
+                }
+                
+                // 해당 레이어의 데이터 포인트 표시/숨김
+                const points = getPointsByLayer(layer);
+                points.forEach(point => {
+                    point.style.display = isActive ? 'none' : 'block';
+                });
+            });
+        });
+
+        function getPointsByLayer(layer) {
+            switch(layer) {
+                case 'water': return document.querySelectorAll('.water-quality');
+                case 'waste': return document.querySelectorAll('.waste-point');
+                case 'green': return document.querySelectorAll('.green-point');
+                case 'activity': return document.querySelectorAll('.activity-point');
+                default: return [];
+            }
+        }
+
+        // 팝업 기능
+        document.querySelectorAll('.data-point').forEach(point => {
+            point.addEventListener('click', (e) => {
+                const popup = document.getElementById('popup');
+                const info = point.dataset.info.split('|');
+                
+                document.getElementById('popupTitle').textContent = info[0];
+                document.getElementById('popupContent').innerHTML = 
+                    info.slice(1).map(item => `<p>${item}</p>`).join('');
+                
+                popup.style.display = 'block';
+                popup.style.left = e.clientX + 10 + 'px';
+                popup.style.top = e.clientY + 10 + 'px';
+            });
+        });
+
+        // 팝업 닫기
+        document.addEventListener('click', (e) => {
+            if (!e.target.classList.contains('data-point')) {
+                document.getElementById('popup').style.display = 'none';
+            }
+        });
+
+        // 시간 슬라이더
+        const timeSlider = document.getElementById('timeSlider');
+        const currentYear = document.getElementById('currentYear');
+        
+        timeSlider.addEventListener('input', (e) => {
+            currentYear.textContent = e.target.value;
+            // 시간에 따른 데이터 변화 시뮬레이션
+            updateStatsForYear(e.target.value);
+        });
+
+        function updateStatsForYear(year) {
+            const waterGrades = ['매우좋음', '좋음', '보통', '나쁨'];
+            const grade = waterGrades[Math.floor(Math.random() * waterGrades.length)];
+            document.getElementById('waterGrade').textContent = grade;
+            
+            const wasteCount = Math.floor(Math.random() * 50) + 10;
+            document.getElementById('wasteReports').textContent = wasteCount + '건';
+            
+            const participants = Math.floor(Math.random() * 2000) + 800;
+            document.getElementById('participants').textContent = participants.toLocaleString() + '명';
+            
+            const cleaned = Math.floor(Math.random() * 30) + 70;
+            document.getElementById('cleanedAreas').textContent = cleaned + '%';
+        }
+
+        // 초기 통계 업데이트
+        updateStatsForYear(2024);
+        
+        // 데이터 포인트 애니메이션
+        setInterval(() => {
+            document.querySelectorAll('.water-quality').forEach(point => {
+                const colors = ['#27ae60', '#f39c12', '#e74c3c'];
+                const currentColor = point.style.backgroundColor;
+                const randomColor = colors[Math.floor(Math.random() * colors.length)];
+                // 가끔씩 색상 변경으로 실시간 데이터 변화 표현
+                if (Math.random() < 0.1) {
+                    point.style.backgroundColor = randomColor;
+                }
+            });
+        }, 3000);
+    </script>
+</body>
+</html>
